@@ -1,0 +1,1 @@
+from .paciente_dao import PacienteDAO
