@@ -1,21 +1,21 @@
 import sqlite3
 from typing import List
 from .ConexionBD import conectar_bd
-from src.modelo.entidades import Paciente, Sintoma
+from src.modelo.entidades import Sintoma, RegistroSintoma
 
 
 class RegistroSintomaDAO:
-    def insertar_paciente(self, paciente: Paciente):
+    def insertar_registro_sintoma(self, registro_sintoma: RegistroSintoma):
         conn = conectar_bd()
         if conn is None:
             return
         try:
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO paciente (nombre, edad) VALUES (?, ?)", (paciente.nombre, paciente.edad))
+            cursor.execute("INSERT INTO paciente_sintoma (id_paciente, id_sintoma, fecha, observaciones) VALUES (?, ?, ?, ?)", (registro_sintoma.paciente.id, registro_sintoma.sintoma.id, registro_sintoma.fecha, registro_sintoma.observaciones))
             conn.commit()
-            print("Paciente insertado correctamente.")
+            print("Síntoma registrado correctamente.")
         except sqlite3.Error as e:
-            print(f"Error al insertar paciente: {e}")
+            print(f"Error al registrar síntoma: {e}")
         finally:
             conn.close()
 

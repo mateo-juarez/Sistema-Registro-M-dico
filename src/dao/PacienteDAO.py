@@ -42,4 +42,30 @@ class PacienteDAO:
 
         return lista_pacientes
 
+    """
+    def obtener_paciente_por_id(self, id_paciente: int) -> Paciente:
+        conn = conectar_bd()
+        if conn is None:
+            return None
+
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id_paciente, nombre, edad FROM paciente WHERE id_paciente = ?", (id_paciente,))
+            fila = cursor.fetchone()
+
+            if fila:
+                id_paciente, nombre, edad = fila
+                return Paciente(id=id_paciente, nombre=nombre, edad=edad)
+            else:
+                print(f"No se encontró un paciente con ID: {id_paciente}")
+                return None
+
+        except sqlite3.Error as e:
+            print(f"Error al obtener paciente por ID: {e}")
+            return None
+
+        finally:
+            conn.close()
+        """
+
 

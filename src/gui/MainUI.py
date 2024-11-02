@@ -1,7 +1,7 @@
 import customtkinter as ctk
-#from tkcalendar import DateEntry
+from tkcalendar import DateEntry
 from src.dao import PacienteDAO, RegistroSintomaDAO
-from src.modelo.entidades import Paciente
+from src.modelo.entidades import Paciente, RegistroSintoma
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
@@ -14,7 +14,7 @@ class MainUI(ctk.CTk):
         self.RegistroSintomaDAO = RegistroSintomaDAO()
 
         self.title("Sistema de Registro Médico")
-        self.geometry("725x550")
+        self.geometry("730x650")
 
         # MENUUUU PRINCIPAAAAAL
         self.menu_principal = ctk.CTkFrame(self, height=50, corner_radius=0, fg_color="#d4d4d4")
@@ -49,23 +49,23 @@ class MainUI(ctk.CTk):
         self.limpiar_ventana_principal()
 
         # LABEL Y TXT PARA NOMBRE
-        lbNombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
-        self.txtNombre = ctk.CTkEntry(self.ventana_principal, width=200)
+        lb_nombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
+        self.txt_nombre = ctk.CTkEntry(self.ventana_principal, width=200)
 
         # UBICACION DE LABEL Y TXT PARA NOMBRE
-        lbNombre.pack(pady=(10, 0))
-        self.txtNombre.pack(pady=(0, 20))
+        lb_nombre.pack(pady=(10, 0))
+        self.txt_nombre.pack(pady=(0, 20))
 
         # LABEL Y TXT PARA EDAD
-        lbEdad = ctk.CTkLabel(self.ventana_principal, text="Ingrese la edad:", font=("Arial", 16))
-        self.txtEdad = ctk.CTkEntry(self.ventana_principal, width=200)
+        lb_edad = ctk.CTkLabel(self.ventana_principal, text="Ingrese la edad:", font=("Arial", 16))
+        self.txt_edad = ctk.CTkEntry(self.ventana_principal, width=200)
 
         # UBICACION DE LABEL Y TXT PARA EDAD
-        lbEdad.pack(pady=(10, 0))
-        self.txtEdad.pack(pady=(0, 20))
+        lb_edad.pack(pady=(10, 0))
+        self.txt_edad.pack(pady=(0, 20))
 
-        self.lbMensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
-        self.lbMensaje.pack(pady=(10, 0))
+        self.lb_mensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
+        self.lb_mensaje.pack(pady=(10, 0))
 
         btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente", command=self.guardar_paciente)
         btn_guardar_paciente.pack(pady=(10, 20))
@@ -79,20 +79,38 @@ class MainUI(ctk.CTk):
     def ver_pantalla_registro_sintomas(self):
         self.limpiar_ventana_principal()
 
-        lbPaciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
-        lbPaciente.pack(pady=(10, 0))
-        self.cbo_pacientes = ctk.CTkComboBox(self.ventana_principal, values=[paciente.nombre for paciente in self.PacienteDAO.obtener_pacientes()], font=("Arial", 16)) # cbo = COMBOBOX
+        lb_paciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
+        lb_paciente.pack(pady=(10, 0))
+        self.lista_pacientes = self.PacienteDAO.obtener_pacientes()
+        self.cbo_pacientes = ctk.CTkComboBox(self.ventana_principal, values=[paciente.nombre for paciente in self.lista_pacientes], font=("Arial", 16)) # cbo = COMBOBOX
         self.cbo_pacientes.pack(pady=(0, 20))
 
-        lbSintoma = ctk.CTkLabel(self.ventana_principal, text="Seleccione un síntoma:", font=("Arial", 16))
-        lbSintoma.pack(pady=(10, 0))
-        self.cbo_sintomas = ctk.CTkComboBox(self.ventana_principal, values=[sintoma.nombre for sintoma in self.RegistroSintomaDAO.obtener_sintomas()], font=("Arial", 16))
+        lb_sintoma = ctk.CTkLabel(self.ventana_principal, text="Seleccione un síntoma:", font=("Arial", 16))
+        lb_sintoma.pack(pady=(10, 0))
+        self.lista_sintomas = self.RegistroSintomaDAO.obtener_sintomas()
+        self.cbo_sintomas = ctk.CTkComboBox(self.ventana_principal, values=[sintoma.nombre for sintoma in self.lista_sintomas], font=("Arial", 16))
         self.cbo_sintomas.pack(pady=(0, 20))
 
-        #lb_fecha = ctk.CTkLabel(self.ventana_principal, text="Ingrese una fecha:", font=("Arial", 16))
-        #lb_fecha.pack(pady=(10, 0))
-        #self.txt_fecha = DateEntry(self.ventana_principal, width=12, background='darkblue', foreground='white', borderwidth=2)
-        #self.txt_fecha.pack(pady=(0, 20))
+        lb_fecha = ctk.CTkLabel(self.ventana_principal, text="Ingrese una fecha:", font=("Arial", 16))
+        lb_fecha.pack(pady=(10, 0))
+        self.txt_fecha = DateEntry(self.ventana_principal, width=12, background='#4c684a', foreground='white', borderwidth=2)
+        self.txt_fecha.pack(pady=(0, 20))
+
+        lb_hora = ctk.CTkLabel(self.ventana_principal, text="Ingrese la hora:", font=("Arial", 16))
+        self.txt_hora = ctk.CTkEntry(self.ventana_principal, width=200, placeholder_text="00")
+        lb_hora.pack(pady=(10, 0))
+        self.txt_hora.pack(pady=(0, 20))
+
+        lb_observaciones = ctk.CTkLabel(self.ventana_principal, text="Ingrese observaciones:", font=("Arial", 16))
+        self.txt_observaciones = ctk.CTkEntry(self.ventana_principal, width=200)
+        lb_observaciones.pack(pady=(10, 0))
+        self.txt_observaciones.pack(pady=(0, 20))
+
+        self.lb_mensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
+        self.lb_mensaje.pack(pady=(10, 0))
+
+        btn_registrar_sintoma = ctk.CTkButton(self.ventana_principal, text="Registrar Síntoma", command=self.registrar_sintoma)
+        btn_registrar_sintoma.pack(pady=(0, 20))
 
 
     def ver_pantalla_registro_medicamentos(self):
@@ -101,6 +119,7 @@ class MainUI(ctk.CTk):
     def ver_pantalla_historial_paciente(self):
         self.limpiar_ventana_principal()
 
+    # ____________________ PACIENTES ______________________
     def cargar_textbox_pacientes(self):
         self.textbox_pacientes.configure(state="normal") # Habilitar edicion del textbox
         lista_pacientes = self.PacienteDAO.obtener_pacientes()
@@ -116,14 +135,14 @@ class MainUI(ctk.CTk):
 
     def guardar_paciente(self):
         # Obtener los valores de los campos de entrada (txt)
-        nombre = self.txtNombre.get()
-        edad = self.txtEdad.get()
+        nombre = self.txt_nombre.get()
+        edad = self.txt_edad.get()
 
         # Verificar si la edad es un número y convertirla
         try:
             edad = int(edad)
         except ValueError:
-            self.lbMensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
+            self.lb_mensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
             return
 
         # Crear un nuevo paciente con los datos de los inputs
@@ -131,15 +150,63 @@ class MainUI(ctk.CTk):
 
         # Llamar al metodo insertar_paciente de la instancia de PacienteDAO
         self.PacienteDAO.insertar_paciente(nuevo_paciente)
-        self.lbMensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
+        self.lb_mensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
 
         # Limpiar los campos de entrada después de guardar
-        self.txtNombre.delete(0, 'end')
-        self.txtEdad.delete(0, 'end')
+        self.txt_nombre.delete(0, 'end')
+        self.txt_edad.delete(0, 'end')
 
         self.cargar_textbox_pacientes()
+    # ____________________ PACIENTES ______________________
+
+    # ____________________ REGISTRO SINTOMA ______________________
+    def registrar_sintoma(self):
+        nombre_paciente = self.cbo_pacientes.get()
+        nombre_sintoma = self.cbo_sintomas.get()
+
+        index_paciente = [paciente.nombre for paciente in self.lista_pacientes].index(nombre_paciente)
+        index_sintoma = [sintoma.nombre for sintoma in self.lista_sintomas].index(nombre_sintoma)
+
+        # Obtener el objeto completo usando el índice
+        paciente_seleccionado = self.lista_pacientes[index_paciente]
+        sintoma_seleccionado = self.lista_sintomas[index_sintoma]
+
+        fecha_seleccionada = self.txt_fecha.get()
+        hora_ingresada = self.txt_hora.get()
+        observaciones = self.txt_observaciones.get()
+
+        try:
+            # Verificar que sea un número
+            hora_ingresada = int(hora_ingresada)
+
+            # Verificar que tenga un máximo de 2 dígitos (0-24)
+            if hora_ingresada < 0 or hora_ingresada > 24:
+                raise ValueError("La hora debe estar entre 0 y 24.")
+
+            # Formatear la hora a dos dígitos
+            hora_ingresada = f"{hora_ingresada:02}"  # Esto agrega un cero a la izquierda si la hora tiene un solo digito
+
+        except ValueError as e:
+            self.lb_mensaje.configure(text=f"La hora ingresada es inválida: {e}", text_color="red")
+            return
+
+        # Combinar fecha y hora en un string
+        fecha_hora = f"{fecha_seleccionada} {hora_ingresada}:00"
+
+        print("fecha completa: ", fecha_hora)
+
+        nuevo_registro_sintoma = RegistroSintoma(paciente_seleccionado, sintoma_seleccionado, fecha_hora, observaciones)
 
 
+        self.RegistroSintomaDAO.insertar_registro_sintoma(nuevo_registro_sintoma)
+
+        # Mostrar un mensaje de éxito y limpiar el campo de mensaje después de un momento
+        self.lb_mensaje.configure(
+            text=f"Se ha registrado correctamente el síntoma {sintoma_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}",
+            text_color="green"
+        )
+
+        self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
 
 
 
