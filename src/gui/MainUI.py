@@ -9,6 +9,7 @@ ctk.set_default_color_theme("green")
 class MainUI(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.PacienteDAO = PacienteDAO()
         self.title("Sistema de Registro Médico")
         self.geometry("725x550")
 
@@ -43,38 +44,34 @@ class MainUI(ctk.CTk):
 
     def ver_pantalla_pacientes(self):
         self.clear_main_frame()
-        dao = PacienteDAO()
-        lista_pacientes = dao.obtener_pacientes()
 
         # LABEL Y TXT PARA NOMBRE
         lbNombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
-        txtNombre = ctk.CTkEntry(self.ventana_principal, width=200)
+        self.txtNombre = ctk.CTkEntry(self.ventana_principal, width=200)
 
         # UBICACION DE LABEL Y TXT PARA NOMBRE
         lbNombre.pack(pady=(10, 0))
-        txtNombre.pack(pady=(0, 20))
+        self.txtNombre.pack(pady=(0, 20))
 
         # LABEL Y TXT PARA EDAD
         lbEdad = ctk.CTkLabel(self.ventana_principal, text="Ingrese la edad:", font=("Arial", 16))
-        txtEdad = ctk.CTkEntry(self.ventana_principal, width=200)
+        self.txtEdad = ctk.CTkEntry(self.ventana_principal, width=200)
 
         # UBICACION DE LABEL Y TXT PARA EDAD
         lbEdad.pack(pady=(10, 0))
-        txtEdad.pack(pady=(0, 20))
+        self.txtEdad.pack(pady=(0, 20))
 
-        lbMensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
-        lbMensaje.pack(pady=(10, 0))
+        self.lbMensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
+        self.lbMensaje.pack(pady=(10, 0))
 
-        btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente", command=lambda: self.guardar_paciente(txtNombre, txtEdad, lbMensaje)) ## Uso de lambda para pasar los entries (txt) como argumentos
+        btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente", command=self.guardar_paciente)
         btn_guardar_paciente.pack(pady=(10, 0))
 
+        self.textbox_pacientes = ctk.CTkTextbox(self.ventana_principal, width=400, height=300)
+        self.textbox_pacientes.pack(pady=(10, 20))
 
+        self.cargar_textbox_pacientes()
 
-        # Crear un Label por cada paciente
-        #for i, paciente in enumerate(lista_pacientes, start=1):
-            #label_text = f"Paciente N° {i} = nombre: {paciente.nombre}, edad: {paciente.edad}"
-            #label = ctk.CTkLabel(self.ventana_principal, text=label_text, font=("Arial", 16))
-            #label.pack(pady=5)
 
     def ver_pantalla_registro_sintomas(self):
         self.clear_main_frame()
@@ -85,31 +82,44 @@ class MainUI(ctk.CTk):
     def ver_pantalla_historial_paciente(self):
         self.clear_main_frame()
 
-    def guardar_paciente(self, txtNombre, txtEdad, lbMensaje):
+    def cargar_textbox_pacientes(self):
+        self.textbox_pacientes.configure(state="normal") # Habilitar edicion del textbox
+        lista_pacientes = self.PacienteDAO.obtener_pacientes()
+
+        # Limpiar el contenido del textbox antes de insertar los datos
+        self.textbox_pacientes.delete("1.0", "end")
+        # Agregar cada paciente de la lista al textbox
+        for i, paciente in enumerate(lista_pacientes, start=1):
+            texto_paciente = f"Paciente N° {i}   =   Nombre: {paciente.nombre},  Edad: {paciente.edad}\n"
+            self.textbox_pacientes.insert("end", texto_paciente)
+
+        self.textbox_pacientes.configure(state="disabled") # Evitar que el usuario edite el textbox
+
+    def guardar_paciente(self):
         # Obtener los valores de los campos de entrada (txt)
-        nombre = txtNombre.get()
-        edad = txtEdad.get()
+        nombre = self.txtNombre.get()
+        edad = self.txtEdad.get()
 
         # Verificar si la edad es un número y convertirla
         try:
             edad = int(edad)
         except ValueError:
-            lbMensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
+            self.lbMensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
             return
 
         # Crear un nuevo paciente con los datos de los inputs
         nuevo_paciente = Paciente(id=None, nombre=nombre, edad=edad)
 
-        # Crear una instancia del DAO
-        dao = PacienteDAO()
-
-        # Llamar al metodo insertar_paciente de la instancia de dao
-        dao.insertar_paciente(nuevo_paciente)
-        lbMensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
+        # Llamar al metodo insertar_paciente de la instancia de PacienteDAO
+        self.PacienteDAO.insertar_paciente(nuevo_paciente)
+        self.lbMensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
 
         # Limpiar los campos de entrada después de guardar
-        txtNombre.delete(0, 'end')
-        txtEdad.delete(0, 'end')
+        self.txtNombre.delete(0, 'end')
+        self.txtEdad.delete(0, 'end')
+
+        self.cargar_textbox_pacientes()
+
 
 
 
