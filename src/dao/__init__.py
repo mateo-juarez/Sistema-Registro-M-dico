@@ -1,1 +1,1 @@
-from .paciente_dao import PacienteDAO
+from .PacienteDAO import PacienteDAO

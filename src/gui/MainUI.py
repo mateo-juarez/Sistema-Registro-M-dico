@@ -2,7 +2,7 @@ import customtkinter as ctk
 from src.dao import PacienteDAO
 from src.model.entidades import Paciente
 
-ctk.set_appearance_mode("Light")  # Establecemos el modo de apariencia en "Dark"
+ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
 
 # Clase de la aplicación principal
@@ -12,12 +12,11 @@ class MainUI(ctk.CTk):
         self.title("Sistema de Registro Médico")
         self.geometry("725x550")
 
-        # Crear el frame del menú superior
-        self.menu_principal = ctk.CTkFrame(self, height=50, corner_radius=0,
-                                           fg_color="#d4d4d4")  # Fondo rojo en el menú superior
+        # MENUUUU PRINCIPAAAAAL
+        self.menu_principal = ctk.CTkFrame(self, height=50, corner_radius=0, fg_color="#d4d4d4")
         self.menu_principal.pack(side="top", fill="x")
 
-        # Crear los botones del menú superior
+        # BOTONESSS DEL MENUUUU
         self.btn_pacientes = ctk.CTkButton(self.menu_principal, text="Pacientes", command=self.ver_pantalla_pacientes)
         self.btn_pacientes.grid(row=0, column=0, padx=20, pady=10)
 
@@ -30,47 +29,46 @@ class MainUI(ctk.CTk):
         self.btn_historial_paciente = ctk.CTkButton(self.menu_principal, text="Historial de Pacientes", command=self.ver_pantalla_historial_paciente)
         self.btn_historial_paciente.grid(row=0, column=3, padx=20, pady=10)
 
-        # Crear el frame principal para el contenido
+        # VENTANAAA PRINCIPAAAL
         self.ventana_principal = ctk.CTkFrame(self, corner_radius=10)
         self.ventana_principal.pack(fill="both", expand=True, padx=20, pady=20)
 
-
-        # Llamar a la función para mostrar el contenido de inicio
+        # PANTALLA INICIALLL
         self.ver_pantalla_pacientes()
 
     def clear_main_frame(self):
-        """Limpia el contenido actual de la ventana padre."""
+        """Limpia el contenido actual de la ventana principal."""
         for widget in self.ventana_principal.winfo_children():
             widget.destroy()
 
     def ver_pantalla_pacientes(self):
-        """Muestra el contenido de la pantalla de pacientes."""
         self.clear_main_frame()
         dao = PacienteDAO()
-
-        # Obtener la lista de pacientes
         lista_pacientes = dao.obtener_pacientes()
 
-        # Crear un label y un campo de entrada para el nombre
+        # LABEL Y TXT PARA NOMBRE
         lbNombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
         txtNombre = ctk.CTkEntry(self.ventana_principal, width=200)
 
-        # Colocar el label y el entry en la parte superior
-        lbNombre.pack(pady=(10, 0))  # Espaciado superior
-        txtNombre.pack(pady=(0, 20))  # Espaciado inferior
+        # UBICACION DE LABEL Y TXT PARA NOMBRE
+        lbNombre.pack(pady=(10, 0))
+        txtNombre.pack(pady=(0, 20))
 
-        # Crear un label y un campo de entrada para la edad
+        # LABEL Y TXT PARA EDAD
         lbEdad = ctk.CTkLabel(self.ventana_principal, text="Ingrese la edad:", font=("Arial", 16))
         txtEdad = ctk.CTkEntry(self.ventana_principal, width=200)
 
-        # Colocar el label y el entry en la parte superior
-        lbEdad.pack(pady=(10, 0))  # Espaciado superior
-        txtEdad.pack(pady=(0, 20))  # Espaciado inferior
+        # UBICACION DE LABEL Y TXT PARA EDAD
+        lbEdad.pack(pady=(10, 0))
+        txtEdad.pack(pady=(0, 20))
 
-        # Usar lambda para pasar los entries como argumentos
-        btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente",
-                                             command=lambda: self.guardar_paciente(txtNombre, txtEdad))
+        lbMensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
+        lbMensaje.pack(pady=(10, 0))
+
+        btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente", command=lambda: self.guardar_paciente(txtNombre, txtEdad, lbMensaje)) ## Uso de lambda para pasar los entries (txt) como argumentos
         btn_guardar_paciente.pack(pady=(10, 0))
+
+
 
         # Crear un Label por cada paciente
         #for i, paciente in enumerate(lista_pacientes, start=1):
@@ -79,32 +77,24 @@ class MainUI(ctk.CTk):
             #label.pack(pady=5)
 
     def ver_pantalla_registro_sintomas(self):
-        """Muestra la pantalla de pacientes."""
         self.clear_main_frame()
-        # Puedes agregar aquí el contenido relacionado con pacientes
 
     def ver_pantalla_registro_medicamentos(self):
-        """Muestra la pantalla de medicamentos."""
         self.clear_main_frame()
-        # Puedes agregar aquí el contenido relacionado con medicamentos
 
     def ver_pantalla_historial_paciente(self):
-        """Muestra la pantalla de síntomas."""
         self.clear_main_frame()
-        # Puedes agregar aquí el contenido relacionado con síntomas
 
-    def guardar_paciente(self, txtNombre, txtEdad):
-        # Obtener los valores de los campos de entrada
-        nombre = txtNombre.get()  # Obtener el nombre desde el campo de entrada
-        edad = txtEdad.get()  # Obtener la edad desde el campo de entrada
+    def guardar_paciente(self, txtNombre, txtEdad, lbMensaje):
+        # Obtener los valores de los campos de entrada (txt)
+        nombre = txtNombre.get()
+        edad = txtEdad.get()
 
         # Verificar si la edad es un número y convertirla
         try:
-            print("nombre: ", nombre)
-            print("edad: ", edad)
-            edad = int(edad)  # Convertir la edad a un entero
+            edad = int(edad)
         except ValueError:
-            print("La edad debe ser un número.")
+            lbMensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
             return
 
         # Crear un nuevo paciente con los datos de los inputs
@@ -113,10 +103,11 @@ class MainUI(ctk.CTk):
         # Crear una instancia del DAO
         dao = PacienteDAO()
 
-        # Llamar al método insertar_paciente de la instancia de dao
+        # Llamar al metodo insertar_paciente de la instancia de dao
         dao.insertar_paciente(nuevo_paciente)
+        lbMensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
 
-        # (Opcional) Limpiar los campos de entrada después de guardar
+        # Limpiar los campos de entrada después de guardar
         txtNombre.delete(0, 'end')
         txtEdad.delete(0, 'end')
 

@@ -1,11 +1,9 @@
 import sqlite3
 from typing import List
-
-from .conexion_bd import conectar_bd
+from .ConexionBD import conectar_bd
 from src.model.entidades import Paciente
 
 class PacienteDAO:
-    #@staticmethod
     def insertar_paciente(self, paciente: Paciente):
         conn = conectar_bd()
         if conn is None:

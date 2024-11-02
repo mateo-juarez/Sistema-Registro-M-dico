@@ -1,4 +1,4 @@
-from src.dao.paciente_dao import PacienteDAO
+from src.dao.PacienteDAO import PacienteDAO
 from src.gui import MainUI
 from src.model.entidades import Paciente
 
