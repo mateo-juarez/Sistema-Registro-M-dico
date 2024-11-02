@@ -1,6 +1,6 @@
 from src.dao.PacienteDAO import PacienteDAO
 from src.gui import MainUI
-from src.model.entidades import Paciente
+from src.modelo.entidades import Paciente
 
 # Crear instancia de paciente
 #nuevo_paciente = Paciente(id=None, nombre="Juan Perez", edad=30)

@@ -1,9 +1,10 @@
 import sqlite3
 from typing import List
 from .ConexionBD import conectar_bd
-from src.modelo.entidades import Paciente
+from src.modelo.entidades import Paciente, Sintoma
 
-class PacienteDAO:
+
+class RegistroSintomaDAO:
     def insertar_paciente(self, paciente: Paciente):
         conn = conectar_bd()
         if conn is None:
@@ -18,28 +19,26 @@ class PacienteDAO:
         finally:
             conn.close()
 
-    def obtener_pacientes(self) -> List[Paciente]:
+    def obtener_sintomas(self) -> List[Sintoma]:
         conn = conectar_bd()
         if conn is None:
             return []
 
-        lista_pacientes = []
+        lista_sintomas = []
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT id_paciente, nombre, edad FROM paciente")
+            cursor.execute("SELECT id_sintoma, nombre FROM sintoma")
 
-            # Recorrer resultados y crear instancias de Paciente
+            # Recorrer resultados y crear instancias de Sintoma
             for fila in cursor.fetchall():
-                id_paciente, nombre, edad = fila
-                paciente = Paciente(id=id_paciente, nombre=nombre, edad=edad)
-                lista_pacientes.append(paciente)
+                id_sintoma, nombre = fila
+                sintoma = Sintoma(id=id_sintoma, nombre=nombre)
+                lista_sintomas.append(sintoma)
 
         except sqlite3.Error as e:
-            print(f"Error al obtener lista_pacientes: {e}")
+            print(f"Error al obtener lista_sintomas: {e}")
 
         finally:
             conn.close()
 
-        return lista_pacientes
-
-
+        return lista_sintomas

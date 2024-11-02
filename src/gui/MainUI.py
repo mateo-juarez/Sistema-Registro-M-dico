@@ -1,6 +1,7 @@
 import customtkinter as ctk
-from src.dao import PacienteDAO
-from src.model.entidades import Paciente
+#from tkcalendar import DateEntry
+from src.dao import PacienteDAO, RegistroSintomaDAO
+from src.modelo.entidades import Paciente
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
@@ -10,6 +11,8 @@ class MainUI(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.PacienteDAO = PacienteDAO()
+        self.RegistroSintomaDAO = RegistroSintomaDAO()
+
         self.title("Sistema de Registro Médico")
         self.geometry("725x550")
 
@@ -37,13 +40,13 @@ class MainUI(ctk.CTk):
         # PANTALLA INICIALLL
         self.ver_pantalla_pacientes()
 
-    def clear_main_frame(self):
+    def limpiar_ventana_principal(self):
         """Limpia el contenido actual de la ventana principal."""
         for widget in self.ventana_principal.winfo_children():
             widget.destroy()
 
     def ver_pantalla_pacientes(self):
-        self.clear_main_frame()
+        self.limpiar_ventana_principal()
 
         # LABEL Y TXT PARA NOMBRE
         lbNombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
@@ -65,22 +68,38 @@ class MainUI(ctk.CTk):
         self.lbMensaje.pack(pady=(10, 0))
 
         btn_guardar_paciente = ctk.CTkButton(self.ventana_principal, text="Guardar Paciente", command=self.guardar_paciente)
-        btn_guardar_paciente.pack(pady=(10, 0))
+        btn_guardar_paciente.pack(pady=(10, 20))
 
-        self.textbox_pacientes = ctk.CTkTextbox(self.ventana_principal, width=400, height=300)
+        self.textbox_pacientes = ctk.CTkTextbox(self.ventana_principal, width=500, height=500, font=("Arial", 16, "bold"))
         self.textbox_pacientes.pack(pady=(10, 20))
 
         self.cargar_textbox_pacientes()
 
 
     def ver_pantalla_registro_sintomas(self):
-        self.clear_main_frame()
+        self.limpiar_ventana_principal()
+
+        lbPaciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
+        lbPaciente.pack(pady=(10, 0))
+        self.cbo_pacientes = ctk.CTkComboBox(self.ventana_principal, values=[paciente.nombre for paciente in self.PacienteDAO.obtener_pacientes()], font=("Arial", 16)) # cbo = COMBOBOX
+        self.cbo_pacientes.pack(pady=(0, 20))
+
+        lbSintoma = ctk.CTkLabel(self.ventana_principal, text="Seleccione un síntoma:", font=("Arial", 16))
+        lbSintoma.pack(pady=(10, 0))
+        self.cbo_sintomas = ctk.CTkComboBox(self.ventana_principal, values=[sintoma.nombre for sintoma in self.RegistroSintomaDAO.obtener_sintomas()], font=("Arial", 16))
+        self.cbo_sintomas.pack(pady=(0, 20))
+
+        #lb_fecha = ctk.CTkLabel(self.ventana_principal, text="Ingrese una fecha:", font=("Arial", 16))
+        #lb_fecha.pack(pady=(10, 0))
+        #self.txt_fecha = DateEntry(self.ventana_principal, width=12, background='darkblue', foreground='white', borderwidth=2)
+        #self.txt_fecha.pack(pady=(0, 20))
+
 
     def ver_pantalla_registro_medicamentos(self):
-        self.clear_main_frame()
+        self.limpiar_ventana_principal()
 
     def ver_pantalla_historial_paciente(self):
-        self.clear_main_frame()
+        self.limpiar_ventana_principal()
 
     def cargar_textbox_pacientes(self):
         self.textbox_pacientes.configure(state="normal") # Habilitar edicion del textbox

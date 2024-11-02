@@ -1,5 +1,5 @@
 from typing import Optional
-from src.model.entidades import Paciente, Medicamento
+from src.modelo.entidades import Paciente, Medicamento
 
 class RegistroMedicamento:
     def __init__(self, paciente: Paciente, medicamento: Medicamento, fecha: str,  observaciones: Optional[str] = None):
