@@ -13,7 +13,6 @@ class RegistroSintomaDAO:
             cursor = conn.cursor()
             cursor.execute("INSERT INTO paciente_sintoma (id_paciente, id_sintoma, fecha, observaciones) VALUES (?, ?, ?, ?)", (registro_sintoma.paciente.id, registro_sintoma.sintoma.id, registro_sintoma.fecha, registro_sintoma.observaciones))
             conn.commit()
-            print("Síntoma registrado correctamente.")
         except sqlite3.Error as e:
             print(f"Error al registrar síntoma: {e}")
         finally:

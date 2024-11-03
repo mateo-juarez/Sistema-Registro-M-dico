@@ -13,7 +13,6 @@ class RegistroMedicamentoDAO:
             cursor = conn.cursor()
             cursor.execute("INSERT INTO paciente_medicamento (id_paciente, id_medicamento, fecha, observaciones) VALUES (?, ?, ?, ?)", (registro_medicamento.paciente.id, registro_medicamento.medicamento.id, registro_medicamento.fecha, registro_medicamento.observaciones))
             conn.commit()
-            print("Medicamento registrado correctamente.")
         except sqlite3.Error as e:
             print(f"Error al registrar medicamento: {e}")
         finally:

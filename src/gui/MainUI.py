@@ -51,18 +51,14 @@ class MainUI(ctk.CTk):
 
         # LABEL Y TXT PARA NOMBRE
         lb_nombre = ctk.CTkLabel(self.ventana_principal, text="Ingrese el nombre:", font=("Arial", 16))
-        self.txt_nombre = ctk.CTkEntry(self.ventana_principal, width=200)
-
-        # UBICACION DE LABEL Y TXT PARA NOMBRE
         lb_nombre.pack(pady=(10, 0))
+        self.txt_nombre = ctk.CTkEntry(self.ventana_principal, width=200)
         self.txt_nombre.pack(pady=(0, 20))
 
         # LABEL Y TXT PARA EDAD
         lb_edad = ctk.CTkLabel(self.ventana_principal, text="Ingrese la edad:", font=("Arial", 16))
-        self.txt_edad = ctk.CTkEntry(self.ventana_principal, width=200)
-
-        # UBICACION DE LABEL Y TXT PARA EDAD
         lb_edad.pack(pady=(10, 0))
+        self.txt_edad = ctk.CTkEntry(self.ventana_principal, width=200)
         self.txt_edad.pack(pady=(0, 20))
 
         self.lb_mensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
@@ -158,7 +154,7 @@ class MainUI(ctk.CTk):
 
     def ver_pantalla_historial_paciente(self):
         self.limpiar_ventana_principal()
-        lb_titulo = ctk.CTkLabel(self.ventana_principal, text="Ver Historial Pacientes", font=ctk.CTkFont(size=18, weight="bold"))
+        lb_titulo = ctk.CTkLabel(self.ventana_principal, text="Ver Historial Pacientes", font=ctk.CTkFont(size=18, weight="bold", underline=True))
         lb_titulo.pack(pady=(10, 0))
 
         lb_paciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
@@ -191,14 +187,14 @@ class MainUI(ctk.CTk):
 
     def guardar_paciente(self):
         # Obtener los valores de los campos de entrada (txt)
-        nombre = self.txt_nombre.get()
+        nombre = self.txt_nombre.get().upper()
         edad = self.txt_edad.get()
 
         # Verificar si la edad es un número y convertirla
         try:
             edad = int(edad)
         except ValueError:
-            self.lb_mensaje.configure(text="La edad debe ser un número válido.", text_color="red") # Mensaje de error
+            self.mostrar_mensaje("La edad debe ser un número válido.", "red")
             return
 
         # Crear un nuevo paciente con los datos de los inputs
@@ -206,7 +202,7 @@ class MainUI(ctk.CTk):
 
         # Llamar al metodo insertar_paciente de la instancia de PacienteDAO
         self.PacienteDAO.insertar_paciente(nuevo_paciente)
-        self.lb_mensaje.configure(text="Paciente agregado correctamente.", text_color="green")  # Mensaje de éxito
+        self.mostrar_mensaje("Paciente agregado correctamente", "green")
 
         # Limpiar los campos de entrada después de guardar
         self.txt_nombre.delete(0, 'end')
@@ -231,25 +227,13 @@ class MainUI(ctk.CTk):
         hora_ingresada = self.txt_hora.get()
         observaciones = self.txt_observaciones.get()
 
-        try:
-            # Verificar que sea un número
-            hora_ingresada = int(hora_ingresada)
-
-            # Verificar que tenga un máximo de 2 dígitos (0-24)
-            if hora_ingresada < 0 or hora_ingresada > 24:
-                raise ValueError("La hora debe estar entre 0 y 24.")
-
-            # Formatear la hora a dos dígitos
-            hora_ingresada = f"{hora_ingresada:02}"  # Esto agrega un cero a la izquierda si la hora tiene un solo digito
-
-        except ValueError as e:
-            self.lb_mensaje.configure(text=f"La hora ingresada es inválida: {e}", text_color="red")
-            return
+        # Validar la hora ingresada
+        hora_formateada = self.validar_hora(hora_ingresada)
+        if hora_formateada is None:
+            return  # Sale de la función si la hora es inválida
 
         # Combinar fecha y hora en un string
-        fecha_hora = f"{fecha_seleccionada} {hora_ingresada}:00"
-
-        print("fecha completa: ", fecha_hora)
+        fecha_hora = f"{fecha_seleccionada} {hora_formateada}:00"
 
         nuevo_registro_sintoma = RegistroSintoma(paciente_seleccionado, sintoma_seleccionado, fecha_hora, observaciones)
 
@@ -257,12 +241,7 @@ class MainUI(ctk.CTk):
         self.RegistroSintomaDAO.insertar_registro_sintoma(nuevo_registro_sintoma)
 
         # Mostrar un mensaje de éxito y limpiar el campo de mensaje después de un momento
-        self.lb_mensaje.configure(
-            text=f"Se ha registrado correctamente el síntoma {sintoma_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}",
-            text_color="green"
-        )
-
-        self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
+        self.mostrar_mensaje(f"Se ha registrado correctamente el síntoma {sintoma_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}", "green")
     # ____________________ REGISTRO SINTOMA ______________________
 
     # ____________________ REGISTRO MEDICAMENTO ______________________
@@ -281,38 +260,21 @@ class MainUI(ctk.CTk):
         hora_ingresada = self.txt_hora.get()
         observaciones = self.txt_observaciones.get()
 
-        try:
-            # Verificar que sea un número
-            hora_ingresada = int(hora_ingresada)
-
-            # Verificar que tenga un máximo de 2 dígitos (0-24)
-            if hora_ingresada < 0 or hora_ingresada > 24:
-                raise ValueError("La hora debe estar entre 0 y 24.")
-
-            # Formatear la hora a dos dígitos
-            hora_ingresada = f"{hora_ingresada:02}"  # Esto agrega un cero a la izquierda si la hora tiene un solo digito
-
-        except ValueError as e:
-            self.lb_mensaje.configure(text=f"La hora ingresada es inválida: {e}", text_color="red")
-            return
+        # Validar la hora ingresada
+        hora_formateada = self.validar_hora(hora_ingresada)
+        if hora_formateada is None:
+            return  # Sale de la función si la hora es inválida
 
         # Combinar fecha y hora en un string
-        fecha_hora = f"{fecha_seleccionada} {hora_ingresada}:00"
-
-        print("fecha completa: ", fecha_hora)
+        fecha_hora = f"{fecha_seleccionada} {hora_formateada}:00"
 
         nuevo_registro_medicamento = RegistroMedicamento(paciente_seleccionado, medicamento_seleccionado, fecha_hora, observaciones)
 
 
         self.RegistroMedicamentoDAO.insertar_registro_medicamento(nuevo_registro_medicamento)
 
-        # Mostrar un mensaje de éxito y limpiar el campo de mensaje después de un momento
-        self.lb_mensaje.configure(
-            text=f"Se ha registrado correctamente el medicamento {medicamento_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}",
-            text_color="green"
-        )
+        self.mostrar_mensaje(f"Se ha registrado correctamente el medicamento {medicamento_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}", "green")
 
-        self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
     # ____________________ REGISTRO MEDICAMENTO ______________________
 
 
@@ -322,19 +284,9 @@ class MainUI(ctk.CTk):
         # Obtener el objeto completo usando el índice
         paciente_seleccionado = self.lista_pacientes[index_paciente]
 
-
         self.PacienteDAO.cargar_registros_sintomas_a_paciente(paciente_seleccionado)
 
-        print("Lista de registros síntomas del paciente: ", paciente_seleccionado.nombre)
-        for registro in paciente_seleccionado.lista_registro_sintomas:
-            print(
-                f"Sintoma: {registro.sintoma.nombre}, Fecha: {registro.fecha}, Observaciones: {registro.observaciones}")
-
         self.PacienteDAO.cargar_registros_medicamentos_a_paciente(paciente_seleccionado)
-        print("Lista de registros medicamentos del paciente: ", paciente_seleccionado.nombre)
-        for registroM in paciente_seleccionado.lista_registro_medicamentos:
-            print(
-                f"Medicamento: {registroM.medicamento.nombre}, Fecha: {registroM.fecha}, Observaciones: {registroM.observaciones}")
 
         self.textbox_historial.delete("1.0", "end")  # Limpiar el Textbox
         self.textbox_historial.insert(ctk.END, f"Registros para {paciente_seleccionado.nombre}:\n\n")
@@ -344,6 +296,29 @@ class MainUI(ctk.CTk):
         self.textbox_historial.insert(ctk.END, "\nMedicamentos:\n")
         for registro_medicamento in paciente_seleccionado.lista_registro_medicamentos:
             self.textbox_historial.insert(ctk.END, f"{str(registro_medicamento)}\n")
+
+    def mostrar_mensaje(self, texto, color):
+        self.lb_mensaje.configure(text=texto, text_color=color)
+        self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
+
+    def validar_hora(self, hora):
+        """
+        Valida que la hora esté entre 0 y 24 y la formatea a dos dígitos si es válida.
+        """
+        try:
+            # VERIFICAR QUE LA HORA SEA NUMEROOOO
+            hora = int(hora)
+
+            # Verificar que tenga un máximo de 2 dígitos (0-24)
+            if hora < 0 or hora > 24:
+                raise ValueError("La hora debe estar entre 0 y 24.")
+
+            # Formatear la hora a dos dígitos
+            return f"{hora:02}"  # Esto agrega un cero a la izquierda si la hora tiene un solo dígito
+
+        except ValueError as e:
+            self.mostrar_mensaje(f"La hora ingresada es inválida: {e}", "red")
+            return None
 
 
 
