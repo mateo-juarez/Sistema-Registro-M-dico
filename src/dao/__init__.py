@@ -1,2 +1,3 @@
 from .PacienteDAO import PacienteDAO
 from .RegistroSintomaDAO import RegistroSintomaDAO
+from .RegistroMedicamentoDAO import RegistroMedicamentoDAO

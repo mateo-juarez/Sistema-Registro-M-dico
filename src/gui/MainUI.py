@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkcalendar import DateEntry
-from src.dao import PacienteDAO, RegistroSintomaDAO
-from src.modelo.entidades import Paciente, RegistroSintoma
+from src.dao import PacienteDAO, RegistroSintomaDAO, RegistroMedicamentoDAO
+from src.modelo.entidades import Paciente, RegistroSintoma, RegistroMedicamento
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
@@ -12,6 +12,7 @@ class MainUI(ctk.CTk):
         super().__init__()
         self.PacienteDAO = PacienteDAO()
         self.RegistroSintomaDAO = RegistroSintomaDAO()
+        self.RegistroMedicamentoDAO = RegistroMedicamentoDAO()
 
         self.title("Sistema de Registro Médico")
         self.geometry("730x650")
@@ -116,8 +117,63 @@ class MainUI(ctk.CTk):
     def ver_pantalla_registro_medicamentos(self):
         self.limpiar_ventana_principal()
 
+        lb_paciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
+        lb_paciente.pack(pady=(10, 0))
+        self.lista_pacientes = self.PacienteDAO.obtener_pacientes()
+        self.cbo_pacientes = ctk.CTkComboBox(self.ventana_principal,
+                                             values=[paciente.nombre for paciente in self.lista_pacientes],
+                                             font=("Arial", 16))  # cbo = COMBOBOX
+        self.cbo_pacientes.pack(pady=(0, 20))
+
+        lb_medicamento = ctk.CTkLabel(self.ventana_principal, text="Seleccione un medicamento:", font=("Arial", 16))
+        lb_medicamento.pack(pady=(10, 0))
+        self.lista_medicamentos = self.RegistroMedicamentoDAO.obtener_medicamentos()
+        self.cbo_medicamentos = ctk.CTkComboBox(self.ventana_principal,
+                                                values=[medicamento.nombre for medicamento in self.lista_medicamentos],
+                                                font=("Arial", 16))
+        self.cbo_medicamentos.pack(pady=(0, 20))
+
+        lb_fecha = ctk.CTkLabel(self.ventana_principal, text="Ingrese una fecha:", font=("Arial", 16))
+        lb_fecha.pack(pady=(10, 0))
+        self.txt_fecha = DateEntry(self.ventana_principal, width=12, background='#4c684a', foreground='white',
+                                   borderwidth=2)
+        self.txt_fecha.pack(pady=(0, 20))
+
+        lb_hora = ctk.CTkLabel(self.ventana_principal, text="Ingrese la hora:", font=("Arial", 16))
+        self.txt_hora = ctk.CTkEntry(self.ventana_principal, width=200, placeholder_text="00")
+        lb_hora.pack(pady=(10, 0))
+        self.txt_hora.pack(pady=(0, 20))
+
+        lb_observaciones = ctk.CTkLabel(self.ventana_principal, text="Ingrese observaciones:", font=("Arial", 16))
+        self.txt_observaciones = ctk.CTkEntry(self.ventana_principal, width=200)
+        lb_observaciones.pack(pady=(10, 0))
+        self.txt_observaciones.pack(pady=(0, 20))
+
+        self.lb_mensaje = ctk.CTkLabel(self.ventana_principal, text="", font=("Arial", 16))
+        self.lb_mensaje.pack(pady=(10, 0))
+
+        btn_registrar_medicamento = ctk.CTkButton(self.ventana_principal, text="Registrar Medicamento",
+                                              command=self.registrar_medicamento)
+        btn_registrar_medicamento.pack(pady=(0, 20))
+
     def ver_pantalla_historial_paciente(self):
         self.limpiar_ventana_principal()
+        lb_titulo = ctk.CTkLabel(self.ventana_principal, text="Ver Historial Pacientes", font=ctk.CTkFont(size=18, weight="bold"))
+        lb_titulo.pack(pady=(10, 0))
+
+        lb_paciente = ctk.CTkLabel(self.ventana_principal, text="Seleccione un paciente:", font=("Arial", 16))
+        lb_paciente.pack(pady=(10, 0))
+        self.lista_pacientes = self.PacienteDAO.obtener_pacientes()
+        self.cbo_pacientes = ctk.CTkComboBox(
+            self.ventana_principal,
+            values=[paciente.nombre for paciente in self.lista_pacientes],
+            font=("Arial", 16),
+            command=self.mostrar_historial_paciente  # Metodo a ejecutar al seleccionar un paciente
+        )
+        self.cbo_pacientes.pack(pady=(0, 20))
+
+        self.textbox_historial = ctk.CTkTextbox(self.ventana_principal, width=400, height=300)
+        self.textbox_historial.pack(pady=(10, 0))
 
     # ____________________ PACIENTES ______________________
     def cargar_textbox_pacientes(self):
@@ -207,6 +263,87 @@ class MainUI(ctk.CTk):
         )
 
         self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
+    # ____________________ REGISTRO SINTOMA ______________________
+
+    # ____________________ REGISTRO MEDICAMENTO ______________________
+    def registrar_medicamento(self):
+        nombre_paciente = self.cbo_pacientes.get()
+        nombre_medicamento = self.cbo_medicamentos.get()
+
+        index_paciente = [paciente.nombre for paciente in self.lista_pacientes].index(nombre_paciente)
+        index_medicamento = [medicamento.nombre for medicamento in self.lista_medicamentos].index(nombre_medicamento)
+
+        # Obtener el objeto completo usando el índice
+        paciente_seleccionado = self.lista_pacientes[index_paciente]
+        medicamento_seleccionado = self.lista_medicamentos[index_medicamento]
+
+        fecha_seleccionada = self.txt_fecha.get()
+        hora_ingresada = self.txt_hora.get()
+        observaciones = self.txt_observaciones.get()
+
+        try:
+            # Verificar que sea un número
+            hora_ingresada = int(hora_ingresada)
+
+            # Verificar que tenga un máximo de 2 dígitos (0-24)
+            if hora_ingresada < 0 or hora_ingresada > 24:
+                raise ValueError("La hora debe estar entre 0 y 24.")
+
+            # Formatear la hora a dos dígitos
+            hora_ingresada = f"{hora_ingresada:02}"  # Esto agrega un cero a la izquierda si la hora tiene un solo digito
+
+        except ValueError as e:
+            self.lb_mensaje.configure(text=f"La hora ingresada es inválida: {e}", text_color="red")
+            return
+
+        # Combinar fecha y hora en un string
+        fecha_hora = f"{fecha_seleccionada} {hora_ingresada}:00"
+
+        print("fecha completa: ", fecha_hora)
+
+        nuevo_registro_medicamento = RegistroMedicamento(paciente_seleccionado, medicamento_seleccionado, fecha_hora, observaciones)
+
+
+        self.RegistroMedicamentoDAO.insertar_registro_medicamento(nuevo_registro_medicamento)
+
+        # Mostrar un mensaje de éxito y limpiar el campo de mensaje después de un momento
+        self.lb_mensaje.configure(
+            text=f"Se ha registrado correctamente el medicamento {medicamento_seleccionado.nombre} al paciente {paciente_seleccionado.nombre}",
+            text_color="green"
+        )
+
+        self.after(8000, lambda: self.lb_mensaje.configure(text=""))  # Limpia el mensaje después de 8 segundos
+    # ____________________ REGISTRO MEDICAMENTO ______________________
+
+
+    def mostrar_historial_paciente(self, evento= None):
+        nombre_paciente = self.cbo_pacientes.get()
+        index_paciente = [paciente.nombre for paciente in self.lista_pacientes].index(nombre_paciente)
+        # Obtener el objeto completo usando el índice
+        paciente_seleccionado = self.lista_pacientes[index_paciente]
+
+
+        self.PacienteDAO.cargar_registros_sintomas_a_paciente(paciente_seleccionado)
+
+        print("Lista de registros síntomas del paciente: ", paciente_seleccionado.nombre)
+        for registro in paciente_seleccionado.lista_registro_sintomas:
+            print(
+                f"Sintoma: {registro.sintoma.nombre}, Fecha: {registro.fecha}, Observaciones: {registro.observaciones}")
+
+        self.PacienteDAO.cargar_registros_medicamentos_a_paciente(paciente_seleccionado)
+        print("Lista de registros medicamentos del paciente: ", paciente_seleccionado.nombre)
+        for registroM in paciente_seleccionado.lista_registro_medicamentos:
+            print(
+                f"Medicamento: {registroM.medicamento.nombre}, Fecha: {registroM.fecha}, Observaciones: {registroM.observaciones}")
+
+        self.textbox_historial.delete("1.0", "end")  # Limpiar el Textbox
+        self.textbox_historial.insert(ctk.END, f"Registros para {paciente_seleccionado.nombre}:\n\n")
+        self.textbox_historial.insert(ctk.END, "Síntomas:\n")
+        for registro_sintoma in paciente_seleccionado.lista_registro_sintomas:
+            self.textbox_historial.insert(ctk.END, f"{str(registro_sintoma)}\n")
+        self.textbox_historial.insert(ctk.END, "\nMedicamentos:\n")
+        for registro_medicamento in paciente_seleccionado.lista_registro_medicamentos:
+            self.textbox_historial.insert(ctk.END, f"{str(registro_medicamento)}\n")
 
 
 

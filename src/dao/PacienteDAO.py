@@ -1,7 +1,7 @@
 import sqlite3
 from typing import List
 from .ConexionBD import conectar_bd
-from src.modelo.entidades import Paciente
+from src.modelo.entidades import Paciente, Sintoma, Medicamento, RegistroSintoma, RegistroMedicamento
 
 class PacienteDAO:
     def insertar_paciente(self, paciente: Paciente):
@@ -42,30 +42,80 @@ class PacienteDAO:
 
         return lista_pacientes
 
-    """
-    def obtener_paciente_por_id(self, id_paciente: int) -> Paciente:
+    def cargar_registros_sintomas_a_paciente(self, paciente: Paciente):
         conn = conectar_bd()
         if conn is None:
-            return None
+            return []
 
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT id_paciente, nombre, edad FROM paciente WHERE id_paciente = ?", (id_paciente,))
-            fila = cursor.fetchone()
+            query = """
+                SELECT ps.fecha, ps.observaciones,
+                       s.id_sintoma, s.nombre AS nombre_sintoma
+                FROM paciente_sintoma ps
+                INNER JOIN sintoma s ON s.id_sintoma = ps.id_sintoma
+                WHERE ps.id_paciente = ?
+            """
+            cursor.execute(query, (paciente.id,))
+            registros = cursor.fetchall()
 
-            if fila:
-                id_paciente, nombre, edad = fila
-                return Paciente(id=id_paciente, nombre=nombre, edad=edad)
-            else:
-                print(f"No se encontró un paciente con ID: {id_paciente}")
-                return None
+            # Crear instancias de RegistroSintoma y Sintoma
+            for registro in registros:
+                fecha, observaciones, id_sintoma, nombre_sintoma= registro
+
+                # Crear el objeto Sintoma
+                sintoma = Sintoma(id=id_sintoma, nombre=nombre_sintoma)
+
+                # Crear el objeto RegistroSintoma y asignarle el sintoma
+                registro_sintoma = RegistroSintoma(
+                    paciente=paciente,
+                    sintoma=sintoma,
+                    fecha=fecha,
+                    observaciones=observaciones
+                )
+                paciente.lista_registro_sintomas.append(registro_sintoma)
 
         except sqlite3.Error as e:
-            print(f"Error al obtener paciente por ID: {e}")
-            return None
+            print(f"Error al cargar los registros de síntomas: {e}")
 
         finally:
             conn.close()
-        """
+
+    def cargar_registros_medicamentos_a_paciente(self, paciente: Paciente):
+        conn = conectar_bd()
+        if conn is None:
+            return []
+
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT pm.fecha, pm.observaciones,
+                       m.id_medicamento, m.nombre AS nombre_medicamento
+                FROM paciente_medicamento pm
+                INNER JOIN medicamento m ON m.id_medicamento = pm.id_medicamento
+                WHERE pm.id_paciente = ?
+            """
+            cursor.execute(query, (paciente.id,))
+            registros = cursor.fetchall()
+
+            for registro in registros:
+                fecha, observaciones, id_medicamento, nombre_medicamento= registro
+
+                medicamento = Medicamento(id=id_medicamento, nombre=nombre_medicamento)
+
+                registro_medicamento = RegistroMedicamento(
+                    paciente=paciente,
+                    medicamento=medicamento,
+                    fecha=fecha,
+                    observaciones=observaciones
+                )
+                paciente.lista_registro_medicamentos.append(registro_medicamento)
+
+        except sqlite3.Error as e:
+            print(f"Error al cargar los registros de medicamentos: {e}")
+
+        finally:
+            conn.close()
+
 
 

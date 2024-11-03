@@ -8,5 +8,6 @@ class RegistroMedicamento:
         self.fecha = fecha
         self.observaciones = observaciones
 
-        # Relación bidireccional
-        #paciente.agregar_ingesta(self)
+
+    def __str__(self):
+        return f"{self.fecha} - {self.paciente.nombre}: {self.medicamento.nombre} ({self.observaciones})"
